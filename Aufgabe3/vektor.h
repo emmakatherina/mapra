@@ -43,6 +43,8 @@ class Vektor
 
     static void VekFehler (const std::string& str);   // Fehlermeldung ausgeben
 
+    friend class Matrix;
+    
     friend Vektor   operator +  (const Vektor&, const Vektor&); // Addition
     friend Vektor   operator -  (const Vektor&, const Vektor&); // Subtraktion
     friend Vektor   operator -  (const Vektor&);                // Vorzeichen

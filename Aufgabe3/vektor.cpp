@@ -30,7 +30,7 @@ Vektor::Vektor(size_t l)
 }
 
 
-// ----- Kopierkonstruktor ----- ??????????????????????????????
+// ----- Kopierkonstruktor -----
 
 Vektor::Vektor(const Vektor& x):Vek(x.Vek)
 {
@@ -101,12 +101,11 @@ Vektor& Vektor::operator += (const Vektor& x)
     // ***** Hier fehlt was *****
     if (Vek.size() != x.Laenge())
         VekFehler("Inkompatible Dimensionen fuer 'Vektor = Vektor'!");
-    Vektor v;
+    Vektor vo;
     int l=Vek.size();
     for(int i=0; i<l; i++)
     {
-        v(i)=(*this)(i)+x(i);
-        (*this)=v;
+        (*this)(i) += x(i);
     }
     return *this;
 }

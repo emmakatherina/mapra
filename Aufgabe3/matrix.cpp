@@ -7,6 +7,7 @@
 
 #include "matrix.h"
 #include <iomanip>
+#include <cstdlib>
 
 // std::vektor<Vektor> Matx;
 

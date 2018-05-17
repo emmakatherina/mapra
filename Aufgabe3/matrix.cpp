@@ -140,15 +140,17 @@ Matrix& Matrix::operator /= (const double s) {
 }
 
 Matrix& Matrix::ReDim(size_t hoehe, size_t breite) {
-    Vektor dummy (hoehe);
+#ifndef NDEBUG
+  if ((hoehe <= 0) && (breite <= 0))
+    MatFehler("Nur Matrizen mit positiver Laenge und Breite!");
+#endif
+
+    Vektor dummy (1);
     Matx.resize(breite, dummy);
-
-    for (int i = 0; i < breite; i++) {
-        Vektor dummy2 (hoehe);
-        Matx[i] = dummy2;
+    for (size_t i = 0; i < Spalten(); i++) {
+        Matx[i].ReDim(hoehe);
     }
-
-    std::cout << "ich bin hier \n";
+    
     return (*this);
 }
 
@@ -261,12 +263,15 @@ Vektor operator * (const Matrix& M, const Vektor& v) {
 
 Vektor operator * (const Vektor& v, const Matrix& M) {
 #ifndef NDEBUG
-    if (M.Spalten() != v.Laenge())
-        Matrix::MatFehler("Inkompatible Dimension für 'Matrix * Vektor'!");
+    if (M.Zeilen() != v.Laenge())
+        Matrix::MatFehler("Inkompatible Dimension für 'Vektor * Matrix'!");
 #endif
-    
-    Matrix result = M;
-    return result *= v;
+   
+    Vektor result (M.Spalten());
+    for (int i = 0; i < result.Laenge(); i++) {
+        result(i) = dot(v, M.Spalte(i));
+    }
+    return result;
 }
 
 Matrix operator / (const Matrix& M, const double s) {

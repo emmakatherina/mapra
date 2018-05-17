@@ -28,8 +28,8 @@ Matrix::Matrix(size_t hoehe, size_t breite) {
 }
 
 Matrix::Matrix(const Matrix& M) : Matx(M.Matx) {
-    for (int i = 0; i < Zeilen(); i++) {
-        for (int j = 0; j < Spalten(); j++) {
+    for (size_t i = 0; i < Zeilen(); i++) {
+        for (size_t j = 0; j < Spalten(); j++) {
             (*this)(i,j) = M(i,j);
         }
     }
@@ -66,9 +66,11 @@ Matrix& Matrix::operator = (const Matrix& M) {
         MatFehler("Inkompatible Dimension für 'Matrix = Matrix'!");
 #endif
     
-    for (int i = 0; i < Zeilen(); i++)
-        for (int j = 0; j < Spalten(); j++)
+    for (size_t i = 0; i < Zeilen(); i++)
+        for (size_t j = 0; j < Spalten(); j++)
             (*this)(i,j) = M(i,j);
+	
+	return (*this);
 }
 
 Matrix& Matrix::operator += (const Matrix& M) {
@@ -77,8 +79,8 @@ Matrix& Matrix::operator += (const Matrix& M) {
         MatFehler("Inkompatible Dimension für 'Matrix += Matrix'!");
 #endif
     
-    for (int i = 0; i < Zeilen(); i++)
-        for (int j = 0; j < Spalten(); j++)
+    for (size_t i = 0; i < Zeilen(); i++)
+        for (size_t j = 0; j < Spalten(); j++)
             (*this)(i,j) += M(i,j);
             
     return (*this);
@@ -90,8 +92,8 @@ Matrix& Matrix::operator -= (const Matrix& M) {
         MatFehler("Inkompatible Dimension für 'Matrix -= Matrix'!");
 #endif
 
-    for (int i = 0; i < Zeilen(); i++)
-        for (int j = 0; j < Spalten(); j++)
+    for (size_t i = 0; i < Zeilen(); i++)
+        for (size_t j = 0; j < Spalten(); j++)
             (*this)(i,j) -= M(i,j);
             
     return (*this);
@@ -104,16 +106,16 @@ Matrix& Matrix::operator *= (const Matrix& M) {
 #endif
 
     Matrix * result = new Matrix (Zeilen(), M.Spalten());
-    for (int i = 0; i < (*result).Zeilen(); i++)
-        for (int j = 0; j < (*result).Spalten(); j++)
+    for (size_t i = 0; i < (*result).Zeilen(); i++)
+        for (size_t j = 0; j < (*result).Spalten(); j++)
             (*result)(i,j) = dot(Zeile(i), M.Spalte(j)); //TODO TODO TODO TODO TODO TODO
             
     return (*result);
 }
 
 Matrix& Matrix::operator *= (const double s) {
-    for (int i = 0; i < Zeilen(); i++)
-        for (int j = 0; j < Spalten(); j++)
+    for (size_t i = 0; i < Zeilen(); i++)
+        for (size_t j = 0; j < Spalten(); j++)
             (*this)(i,j) *= s;
             
     return (*this);
@@ -126,15 +128,15 @@ Vektor& Matrix::operator *= (const Vektor& v) {
 #endif
 
     Vektor * result = new Vektor (Zeilen());
-    for (int i = 0; i < (*result).Laenge(); i++)
+    for (size_t i = 0; i < (*result).Laenge(); i++)
         (*result)(i) = dot(Zeile(i), v);
         
     return (*result);
 }
 
 Matrix& Matrix::operator /= (const double s) {
-    for (int i = 0; i < Zeilen(); i++)
-        for (int j = 0; j < Spalten(); j++)
+    for (size_t i = 0; i < Zeilen(); i++)
+        for (size_t j = 0; j < Spalten(); j++)
             (*this)(i,j) /= s;
             
     return (*this);
@@ -170,7 +172,7 @@ Vektor Matrix::Zeile (size_t i) const {
 #endif
 
     Vektor * result = new Vektor (Spalten());
-    for (int j = 0; j < (*result).Laenge(); j++) 
+    for (size_t j = 0; j < (*result).Laenge(); j++) 
         (*result)(j) = (*this)(i,j);
     return * result;
 }
@@ -189,9 +191,9 @@ Vektor Matrix::Spalte (size_t j) const {
 double Matrix::NormMax() const { // TODO TODO TODO TODO TODO TODO
     double result = 0;
     
-    for (int i = 0; i < Spalten(); i++) {
+    for (size_t i = 0; i < Spalten(); i++) {
         double zeilensumme = 0;
-        for (int j = 0; j < Zeilen(); j++)
+        for (size_t j = 0; j < Zeilen(); j++)
             zeilensumme += (*this)(i,j);
         if (zeilensumme > result)
             result = zeilensumme;
@@ -269,7 +271,7 @@ Vektor operator * (const Vektor& v, const Matrix& M) {
 #endif
    
     Vektor result (M.Spalten());
-    for (int i = 0; i < result.Laenge(); i++) {
+    for (size_t i = 0; i < result.Laenge(); i++) {
         result(i) = dot(v, M.Spalte(i));
     }
     return result;
@@ -284,8 +286,8 @@ bool operator == (const Matrix& A, const Matrix& B) {
     if ((A.Spalten() != B.Spalten()) || (A.Zeilen() != B.Zeilen()))
         return false;
     
-    for (int i = 0; i < A.Zeilen(); i++)
-        for (int j = 0; j < A.Spalten(); j++)
+    for (size_t i = 0; i < A.Zeilen(); i++)
+        for (size_t j = 0; j < A.Spalten(); j++)
             if (A(i,j) != B(i,j))
                 return false;
     
@@ -301,8 +303,8 @@ std::ostream& operator << (std::ostream& out, Matrix& M) {
     out << "# Hoehe: " << M.Zeilen() << std::endl;
     out << "# Breite: " << M.Spalten() << std::endl;
     
-    for (int i = 0; i < M.Zeilen(); i++) {
-        for (int j = 0; j < M.Spalten(); j++)
+    for (size_t i = 0; i < M.Zeilen(); i++) {
+        for (size_t j = 0; j < M.Spalten(); j++)
             out << M(i,j) << " ";
         out << std::endl;
     }
@@ -312,12 +314,12 @@ std::ostream& operator << (std::ostream& out, Matrix& M) {
 }
 
 std::istream& operator >> (std::istream& in, Matrix& M) {
-    int hoehe = 0, breite = 0;
+    size_t hoehe = 0, breite = 0;
     in >> hoehe >> breite;
     M = Matrix(hoehe, breite);
     
-    for (int i = 0; i < hoehe; i++)
-        for (int j = 0; j < breite; j++)
+    for (size_t i = 0; i < hoehe; i++)
+        for (size_t j = 0; j < breite; j++)
             in >> M(i,j);
             
     return in;

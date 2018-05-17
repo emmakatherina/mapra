@@ -203,7 +203,7 @@ double Vektor::NormMax() const
 {
   // ***** Hier fehlt was *****
     double max= abs((*this)(0));
-    for(int i=1; i<Vek.size(); i++)
+    for(size_t i=1; i<Vek.size(); i++)
     {
         if(abs((*this)(i))>max)
         {

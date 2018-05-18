@@ -101,36 +101,32 @@ void WriteResiduum(vector<double> res, const char * filename) {
 }
 
 int main (int argc, char * argv[]) {
-    for (int i = 1; i <= AnzahlBeispiele; i++) {
-        Matrix A;
-        Vektor x0, b;
-        double tol = 0.5;
-        int maxiter = 10;
-        int Iterationen = 0;
+	Matrix A;
+	Vektor x0, b;
+	double tol = 0.5;
+	int maxiter = 10;
+	int Iterationen = 0;
 
-		vector<double> res (0);
+	vector<double> res (0);
 
-        Start(i, A, x0, b, tol, maxiter);
+	int Beispiel = 1;
+	if (argc > 1)
+		Beispiel = ((int) argv[1][0]) - 48;
 
-		int Methode = 0;
-		if (argc > 1)
-			Methode = ((int) argv[1][0]) - 48;
+	Start(Beispiel, A, x0, b, tol, maxiter);
+	Jacobi(x0, b, A, Iterationen, maxiter, tol, res);
+	WriteResiduum(res, "Jacobi.txt");
+	Ergebnis(x0, Iterationen, 0);
 
-        if (Methode == 0) {
-			Jacobi(x0, b, A, Iterationen, maxiter, tol, res);
-			WriteResiduum(res, "Jacobi.txt");
-        }
-        else if (Methode == 1) {
-			GS(x0, b, A, Iterationen, maxiter, tol, res);
-			WriteResiduum(res, "GS.txt");
-        }
-        else if (Methode == 2) {
-			CG(x0, b, A, Iterationen, maxiter, tol, res);
-			WriteResiduum(res, "CG.txt");
-        }
-		
-        Ergebnis(x0, Iterationen, Methode);
-    }
+	Start(Beispiel, A, x0, b, tol, maxiter);
+	GS(x0, b, A, Iterationen, maxiter, tol, res);
+	WriteResiduum(res, "GS.txt");
+	Ergebnis(x0, Iterationen, 1);
+
+	Start(Beispiel, A, x0, b, tol, maxiter);
+	CG(x0, b, A, Iterationen, maxiter, tol, res);
+	WriteResiduum(res, "CG.txt");
+	Ergebnis(x0, Iterationen, 2);
 
     return 0;
 }

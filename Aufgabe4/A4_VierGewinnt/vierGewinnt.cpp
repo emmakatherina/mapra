@@ -4,37 +4,15 @@
 #include <iostream>
 #include <random>
 #include "unit.h"
+#include "Spielbrett.h"
 
-void NetzwerkMain();
-
-// ...
-
-// const unsigned int Schwierigkeitsgrad = 0;
+const unsigned int Schwierigkeitsgrad = 0;
 
 enum Feld
 { leer, gelb, rot };
 
 // ...
 
-int main()
-{
-    int Zug, Gegenzug;
-
-    // Netzwerkspiel? Rufe NetzwerkMain() auf.
-
-// ...
-
-//    Start(Schwierigkeitsgrad);
-
-    for(unsigned int Spiel = 1; Spiel <= AnzahlSpiele; Spiel++)
-    {
-
-// ...
-
-    }
-
-    return 0;
-}
 
 enum class SpielStatus {
     Verbindungsfehler,
@@ -152,4 +130,24 @@ void NetzwerkMain() {
     }
     
     SchliesseVerbindung();
+}
+
+int main()
+{
+    int Zug, Gegenzug;
+
+    // Netzwerkspiel? Rufe NetzwerkMain() auf.
+
+// ...
+
+    Start(Schwierigkeitsgrad);
+
+    for(unsigned int Spiel = 1; Spiel <= AnzahlSpiele; Spiel++)
+    {
+
+// ...
+
+    }
+
+    return 0;
 }

@@ -1,11 +1,18 @@
-CXXFLAGS = -g
+CXXFLAGS = -g -O3 -std=c++11 -Wall
+LIBS = -lX11 -pthread
 
-prog: vierGewinnt.cpp Spielbrett.o Spielbrett.h unit.h unit.o 
-	$(CXX) $(CXXFLAGS) -o $@ $^
+prog: vierGewinnt.cpp Spielbrett.o unit.o plotx11.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o $@ $^
+
+netz: vierGewinntNetzwerk.cpp Spielbrett.o unit.o plotx11.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o $@ $^
+
+run: prog
+	./prog
 
 Spielbrett.o: Spielbrett.cpp Spielbrett.h
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) $(LIBS) -c $<
 
-.PHONY: clean
+.PHONY: clean run
 clean:
-	rm Spielbrett.o
+	rm -f Spielbrett.o prog netz

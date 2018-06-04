@@ -11,9 +11,6 @@ const unsigned int Schwierigkeitsgrad = 4;
 enum Feld
 { leer, gelb, rot };
 
-// ...
-
-
 enum class SpielStatus {
     Verbindungsfehler,
     Niederlage,
@@ -25,9 +22,43 @@ enum class SpielStatus {
 // Sollte das Spiel beendet sein oder ein Netzwerkfehler auftreten, muss diese Methode
 // das zugehoerige Element der Enumeration SpielStatus zurueckgeben.
 SpielStatus Netzwerkspiel( Feld MeineFarbe ) {
+	Spielbrett Brett (((size_t) AnzahlZeilen), ((size_t) AnzahlSpalten));
+	int Zug, Gegenzug;
 
-    // TODO Implementiere Netzwerkprotokoll
-    
+	if (MeineFarbe == gelb) {
+		Zug = Brett.BestNextStep();
+		Brett.Set(true, Zug);
+		if (!SendeZug(Zug))
+			return SpielStatus::Verbindungsfehler;
+	}
+
+	while (true) {
+		Gegenzug = Brett.TestStep(Brett.EmpfangeZug());
+		Brett.Set(false, Gegenzug);
+		
+		if (Gegenzug == -1) {
+			return SpielStatus::Verbindungsfehler;
+		} else {
+
+		/*int Stand = Brett.Spielende();
+		if (Stand == 1)
+			return SpielStatus::Sieg;
+		else if (Stand == 0)
+			return SpielStatus::Unentschieden;
+		else if (Stand == -1)
+			return SpielStatus::Niederlage;
+		else if (Gegenzug == SPIELENDE)
+			return SpielStatus::Verbindungsfehler;
+		else {
+			Zug = Brett.BestNextStep();
+			Brett.Set(true, Zug);
+			if (!SendeZug(Zug))
+				return SpielStatus::Verbindungsfehler;
+		}*/
+
+
+	}
+
     return SpielStatus::Verbindungsfehler;
 }
 
@@ -134,28 +165,5 @@ void NetzwerkMain() {
 
 int main()
 {
-    int Zug, Gegenzug;
-
-    // Netzwerkspiel? Rufe NetzwerkMain() auf.
-    Start(Schwierigkeitsgrad);
-
-    for(unsigned int Spiel = 1; Spiel <= AnzahlSpiele; Spiel++)
-    {
-		Spielbrett Brett (((size_t) AnzahlZeilen), ((size_t) AnzahlSpalten));
-		if (Spiel % 2 == 0) {
-			Gegenzug = NaechsterZug(-1);
-			Brett.Set(false, Gegenzug);
-		}
-		while (true) {
-			Zug = Brett.BestNextStep();
-			Brett.Set(true, Zug);
-			Gegenzug = NaechsterZug(Zug);
-			if (Gegenzug < 0) {
-				break;
-			}
-			Brett.Set(false, Gegenzug);
-		}
-    }
-
-    return 0;
+	NetzwerkMain();
 }

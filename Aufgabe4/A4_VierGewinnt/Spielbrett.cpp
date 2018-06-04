@@ -58,6 +58,7 @@ void Spielbrett::Fehler(const char* meldung) {
 
 void Spielbrett::print () {
 	cout << "Bewertung: " << Bewertung() << endl;
+	cout << "Spielende: " << Spielende() << endl;
 	for (int j = Hoehe-1; j > -1; j--) {
 		cout << "|";
 		for (int i = 0; i < Breite; i++) {
@@ -115,15 +116,16 @@ int Spielbrett::BestNextStep () {
 			Unset(i);
 		}
 	}
+	print();
 
 	return BesteSpalten[rand() % BesteSpalten.size()]; 
 }
 
 int Spielbrett::TestStep (int spalte) {
-	if ((spalte < Breite) && (spalte > -1)) {
+	if ((spalte < Breite) && (spalte > -2)) {
 		return spalte;
 	} else {
-		return -1;
+		return -2;
 	}
 }
 
@@ -266,14 +268,10 @@ int Spielbrett::Spielende() {
 						Gelbe++;
 				}
 				int vierer = BewerteVierer(Gelbe, Rote);
-				switch (vierer) {
-					case 1000000:
-						return 1; //Wir haben gewonnen! :)
-						break;
-					case -1000000: //Die anderen haben gewonnen. :(
-					default:
-						return -1;
-						break;
+				if (vierer == 1000000) {
+					return 1; //Wir haben gewonnen! :)
+				} else if (vierer == 1000000) {
+					return -1;
 				}
 			}
 
@@ -289,14 +287,10 @@ int Spielbrett::Spielende() {
 						Gelbe++;
 				}
 				int vierer = BewerteVierer(Gelbe, Rote);
-				switch (vierer) {
-					case 1000000:
-						return 1;
-						break;
-					case -1000000:
-					default:
-						return -1;
-						break;
+				if (vierer == 1000000) {
+					return 1; //Wir haben gewonnen! :)
+				} else if (vierer == 1000000) {
+					return -1;
 				}
 			}
 			
@@ -312,14 +306,10 @@ int Spielbrett::Spielende() {
 						Gelbe++;
 				}
 				int vierer = BewerteVierer(Gelbe, Rote);
-				switch (vierer) {
-					case 1000000:
-						return 1;
-						break;
-					case -1000000:
-					default:
-						return -1;
-						break;
+				if (vierer == 1000000) {
+					return 1; //Wir haben gewonnen! :)
+				} else if (vierer == 1000000) {
+					return -1;
 				}
 			}
 
@@ -335,14 +325,10 @@ int Spielbrett::Spielende() {
 						Gelbe++;
 				}
 				int vierer = BewerteVierer(Gelbe, Rote);
-				switch (vierer) {
-					case 1000000:
-						return 1;
-						break;
-					case -1000000:
-					default:
-						return -1;
-						break;
+				if (vierer == 1000000) {
+					return 1; //Wir haben gewonnen! :)
+				} else if (vierer == 1000000) {
+					return -1;
 				}
 			}
 		}

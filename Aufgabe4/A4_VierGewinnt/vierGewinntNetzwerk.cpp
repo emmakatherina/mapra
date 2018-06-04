@@ -28,35 +28,69 @@ SpielStatus Netzwerkspiel( Feld MeineFarbe ) {
 	if (MeineFarbe == gelb) {
 		Zug = Brett.BestNextStep();
 		Brett.Set(true, Zug);
+		Brett.print();
 		if (!SendeZug(Zug))
 			return SpielStatus::Verbindungsfehler;
 	}
 
 	while (true) {
-		Gegenzug = Brett.TestStep(Brett.EmpfangeZug());
-		Brett.Set(false, Gegenzug);
-		
-		if (Gegenzug == -1) {
+		Gegenzug = Brett.TestStep(EmpfangeZug());
+		if (Gegenzug == SPIELENDE) {
+			//Wie ist das Endergebnis?
+			int Spielende = Brett.Spielende();
+			if (Spielende == -1) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Niederlage;
+			} else if (Spielende == 0) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Unentschieden;
+			} else if (Spielende == 1) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Sieg;
+			} else {
+				cout << "Gegner hat SPIELENDE übergeben\n";
+				return SpielStatus::Verbindungsfehler;
+			}
+		} else if (Gegenzug == VERBINDUNGSFEHLER) {
+			cout << "Gegner hat VERBINDUNGSFEHLER übergeben\n";
 			return SpielStatus::Verbindungsfehler;
 		} else {
+			Brett.Set(false, Gegenzug);
+			Brett.print();
 
-		/*int Stand = Brett.Spielende();
-		if (Stand == 1)
-			return SpielStatus::Sieg;
-		else if (Stand == 0)
-			return SpielStatus::Unentschieden;
-		else if (Stand == -1)
-			return SpielStatus::Niederlage;
-		else if (Gegenzug == SPIELENDE)
-			return SpielStatus::Verbindungsfehler;
-		else {
+			//Gibt es schon ein Endergebnis?
+			int Spielende = Brett.Spielende();
+			if (Spielende == -1) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Niederlage;
+			} else if (Spielende == 0) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Unentschieden;
+			} else if (Spielende == 1) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Sieg;
+			}
+
 			Zug = Brett.BestNextStep();
-			Brett.Set(true, Zug);
-			if (!SendeZug(Zug))
+			if (!SendeZug(Zug)) {
 				return SpielStatus::Verbindungsfehler;
-		}*/
+			}
+			Brett.Set(true, Zug);
+			Brett.print();
 
-
+			//Gibt es jetzt ein Endergebnis?
+			Spielende = Brett.Spielende();
+			if (Spielende == -1) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Niederlage;
+			} else if (Spielende == 0) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Unentschieden;
+			} else if (Spielende == 1) {
+				SendeZug(SPIELENDE);
+				return SpielStatus::Sieg;
+			}
+		}
 	}
 
     return SpielStatus::Verbindungsfehler;

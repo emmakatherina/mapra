@@ -256,15 +256,133 @@ std::istream& operator>> (std::istream& in, SimpleDistanceGraph& graph) {
 // Abstrakte Basisklasse zur Repraesentation eines Distanzgraphen
 //-------------------------------------------------------------------------------------------------
 
-/*class MazeGraph : public DistanceGraph {
+class MazeGraph : public DistanceGraph {
+  private:
+    bool ** mazeField;
+    int width;
+
+    typedef std::pair<std::size_t,std::size_t> indexT;
+
   public:
-    DistanceGraph(int num_verts = 0);
+    MazeGraph(int width = 0) : DistanceGraph(width*width) {
+        (*this).width = width;
+
+        mazeField = new bool * [width];
+        for (int i = 0; i < width; i++) {
+            mazeField[i] = new bool [width];
+        }
+    };
 
     //Destruktor notwenig?
 
-    const NeighborT& getNeighbors( VertexT v) const override;
-    CostT estimatedCost( VertexT from, VertexT to) const override;
-    CostT cost( VertexT from, VertexT to) const override;
-};*/
+    void resize(int width) {
+        vertexCount = width*width;
+        (*this).width = width;
+
+        mazeField = new bool * [width];
+        for (int i = 0; i < width; i++) {
+            mazeField[i] = new bool [width];
+        }
+    };
+
+    void setPassage(int i, int j, bool passage) {
+        if ((i > -1) && (i < width) && (j > -1) && (j < width)) {
+            mazeField[i][j] = passage;
+        }
+    }
+
+    indexT vertexToIndex(VertexT v) const {
+        indexT result;
+        result.second = v % width;
+        result.first = (v - result.second)/width;
+        return result;
+    };
+
+    int indexToVertex(int i, int j) const {
+        if ((i < 0) || (j < 0) || (i > 7) || (j > 7)) {
+            return -1;
+        }
+        return j + i*width;
+    };
+
+    const NeighborT& getNeighbors( VertexT v) const override {
+        NeighborT * result = new NeighborT;
+        indexT currentPosition = vertexToIndex(v);
+        
+        //oben
+        indexT neighbourI = std::make_pair(currentPosition.first - 1, currentPosition.second);
+        //unten
+        indexT neighbourI2 = std::make_pair(currentPosition.first + 1, currentPosition.second);
+        //rechts
+        indexT neighbourI3 = std::make_pair(currentPosition.first, currentPosition.second + 1);
+        //links
+        indexT neighbourI4 = std::make_pair(currentPosition.first, currentPosition.second - 1);
+
+        indexT neighbourIndices [4] = {neighbourI, neighbourI2, neighbourI3, neighbourI4};
+
+        for (indexT index : neighbourIndices) {
+            LocalEdgeT edge;
+            int vertex = indexToVertex(index.first, index.second);
+
+            if (vertex> -1) {
+                edge.first = vertex;
+                mazeField[index.first][index.second] ? edge.second = 0 : edge.second = 1;
+                (*result).push_back(edge);
+            }
+        }
+
+        return *result;
+    };
+
+    CostT estimatedCost( VertexT from, VertexT to) const override {
+        if (cost(from, to) != 100000) { //TODO change to infty
+            return cost(from, to);
+        } else {
+            indexT fromI = vertexToIndex(from);
+            indexT toI = vertexToIndex(to);
+            if (mazeField[fromI.first][fromI.second] && mazeField[toI.first][toI.second]) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+    };
+
+    CostT cost( VertexT from, VertexT to) const override {
+        NeighborT neighbors = getNeighbors(from);
+        for (std::size_t i = 0; i < neighbors.size(); i++) {
+            if (neighbors[i].first == to) {
+                indexT fromI = vertexToIndex(from);
+                indexT toI = vertexToIndex(to);
+                if (mazeField[fromI.first][fromI.second] && mazeField[toI.first][toI.second]) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        }
+        return 100000;
+    };
+};
+
+std::istream& operator>> (std::istream& in, MazeGraph& graph) {
+    int a, b;
+    in >> a >> b;
+    graph.resize(a);
+   
+    char c = '.';
+    for (int i = 0; i < a; i++) {
+        for (int j = 0; j < a; j++) {
+            in >> c;
+            if (c == '#') {
+                graph.setPassage(i,j,false);
+            } else if (c == '.') {
+                graph.setPassage(i,j,true);
+            }
+        }
+    }
+
+    return in;
+}
 
 #endif

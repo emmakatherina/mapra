@@ -15,4 +15,4 @@ runtest: test
 .PHONY: run clean
 
 clean:
-	rm -f prog distance_graph.o
+	rm -f prog distance_graph.o a_stern

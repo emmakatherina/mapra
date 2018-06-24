@@ -16,20 +16,36 @@ void Dijkstra(const DistanceGraph& g, GraphVisualizer& v, VertexT start, std::ve
 
 std::size_t findPosition(const std::vector<DistanceGraph::LocalEdgeT> queue, DistanceGraph::LocalEdgeT edge) {
 	for (std::size_t i = 0; i < queue.size(); i++) {
-		if (queue[i].first == edge) {
+		if (queue[i].first == edge.first) {
 			return i;
 		}
 	}
 	return queue.size();
 }
 
-bool A_star(const DistanceGraph& g, GraphVisualizer& v, VertexT start, VertexT ziel, std::list<VertexT>& weg) {
-	/*LocalEdgeT edge (1,5.0), edge2 (2,3.);
-	queue.push_back(edge);
-	queue.push_back(edge2);
-	std::make_heap(queue.begin(), queue.end(), compare());
-	cout << queue[0].first << " " << queue[1].first << endl;*/
+void makePath(VertexT * predecessors, std::list<VertexT>& weg, VertexT start, VertexT ziel, std::size_t vertexCount) {
+	for (std::size_t i = 0; i < vertexCount; i++)
+		std::cout << predecessors[i] << " ";
+	weg.resize(0);
+	VertexT current = ziel;
+	weg.push_front(current);
+	while (predecessors[current] != vertexCount) {
+		current = predecessors[current];
+		weg.push_front(current);
+	}
+}
 
+void initializeVertexArray(VertexT * predecessors, std::size_t length) {
+	for (std::size_t i = 0; i < length; i++)
+		predecessors[i] = length;
+}
+
+void initializeBoolArray(bool * examined, std::size_t length) {
+	for (std::size_t i = 0; i < length; i++)
+		examined[i] = false;
+}
+
+bool A_star(const DistanceGraph& g, GraphVisualizer& v, VertexT start, VertexT ziel, std::list<VertexT>& weg) {
 	typedef DistanceGraph::LocalEdgeT LocalEdgeT;
 	typedef DistanceGraph::NeighborT NeighborT;
 	class compare {
@@ -39,64 +55,83 @@ bool A_star(const DistanceGraph& g, GraphVisualizer& v, VertexT start, VertexT z
 		}
 	};
 	std::vector<LocalEdgeT> queue;
+	std::size_t numVertices = g.numVertices();
+	VertexT * predecessors = new VertexT [numVertices];
+	initializeVertexArray(predecessors, numVertices);
+	CostT * realCostsTo = new CostT [numVertices];
+	bool * examined = new bool [numVertices]; //standardmäßig auf false setzen!
+	initializeBoolArray(examined, numVertices);
 
-    //start in priority queue
 	queue.push_back(LocalEdgeT (start, g.estimatedCost(start, ziel)));
-	//array für weg initialisieren
-	VertexT * predecessors [g.numVertices()];
-	bool * examined [g.numVertices()]; //standardmäßig auf false setzen!
+	realCostsTo[start] = 0;
 
-	//kleinsten knoten aus priority queue nehmen und nachbarn mit kosten in priority queue schreiben
 	std::make_heap(queue.begin(), queue.end(), compare());
-	LocalEdgeT current = queue[0];
-	NeighborT neighbors = g.getNeighbors(current.first);
-	for (LocalEdgeT n : neighbors) {
-		if (!examined[n.first]) {
-			std::size_t position = findPosition(queue, n);
-			/*
-			if (position != queue.end()) { //hier nochmal checken!
-				CostT newCosts = g.cost(start, queue[position].first) + g.estimatedCost(queue[position].first, ziel);
-				if (newCosts < queue[position].second) {
-					queue[position].second = newCosts;
-					std::make_heap(queue.begin(), queue.end(), compare()); //Könnte man optimieren!
-				}
-			} else {
-				CostT newCosts = g.cost(start, n.first) + g.estimatedCost(n.first, ziel);
-				queue.push_back(LocalEdgeT (n.first, newCosts);
-				std::push_heap(queue.begin(), queue.end());
-			}
-			*/
+
+	do {
+		LocalEdgeT current = queue[0];
+		std::pop_heap(queue.begin(), queue.end());
+		queue.pop_back();
+
+		if (current.first == ziel) {
+			makePath(predecessors, weg, start, ziel, numVertices);
+			return true;
 		}
-	}
 
-	//bei nachbarn vorgänger in array setzen, falls nachbar schon in priority queue, dann updaten
-	//aber nur falls weg kürzer!
+		examined[current.first] = true;
 
-	//weg aus array auslesen und in liste speichern
+		NeighborT neighbors = g.getNeighbors(current.first);
+		for (LocalEdgeT n : neighbors) {
+			if (examined[n.first])
+				continue;
+
+			CostT realCosts = realCostsTo[current.first] + g.cost(current.first, n.first);
+
+			std::size_t position = findPosition(queue, n);
+			if ((position != queue.size()) && (realCostsTo[n.first] <= realCosts))
+					continue;
+
+			predecessors[n.first] = current.first;
+			realCostsTo[n.first] = realCosts;
+
+			CostT estimatedTotal = realCosts + g.estimatedCost(n.first, ziel);
+			if (position != queue.size()) {
+				queue[position].second = estimatedTotal;
+			} else {
+				queue.push_back(LocalEdgeT (n.first, estimatedTotal));
+			}
+		}
+	} while (queue.size() != 0);
+
+
+	makePath(predecessors, weg, start, ziel, numVertices);
     return false; // Kein Weg gefunden.
 }
 
 int main()
 {
     // Frage Beispielnummer vom User ab
+	int example = 1;
+	cout << "Beispiel (1-10): ";
+	std::cin >> example;
     
     // Lade die zugehoerige Textdatei in einen Graphen
     // PruefeHeuristik
     
-    // Loese die in der Aufgabenstellung beschriebenen Probleme fuer die jeweilige Datei
-    // PruefeDijkstra / PruefeWeg
-
-	//------------------------------
-	
+	//std::ifstream in;
 	GraphVisualizer * visualizer;
 	std::list<VertexT> weg;
 
-    std::ifstream in ("daten/Graph3.dat");
-    SimpleDistanceGraph graph (1500);
+	/*if (example == 1) {
+		in.open("daten/Graph1.dat");*/
+
+    std::ifstream in ("daten/Graph1.dat");
+    CoordinateGraph graph;
     in >> graph;
     in.close();
 
-	A_star(graph, *visualizer, 0, 3, weg);
+	bool pathFound = A_star(graph, *visualizer, 2, 3, weg);
+
+	PruefeWeg(1, weg);
     
     return 0;
 }

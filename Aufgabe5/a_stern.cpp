@@ -24,8 +24,6 @@ std::size_t findPosition(const std::vector<DistanceGraph::LocalEdgeT> queue, Dis
 }
 
 void makePath(VertexT * predecessors, std::list<VertexT>& weg, VertexT start, VertexT ziel, std::size_t vertexCount) {
-	for (std::size_t i = 0; i < vertexCount; i++)
-		std::cout << predecessors[i] << " ";
 	weg.resize(0);
 	VertexT current = ziel;
 	weg.push_front(current);
@@ -50,8 +48,8 @@ bool A_star(const DistanceGraph& g, GraphVisualizer& v, VertexT start, VertexT z
 	typedef DistanceGraph::NeighborT NeighborT;
 	class compare {
 	  public:
-		bool operator() (const LocalEdgeT left, const LocalEdgeT right) {
-			return left.second < left.first;
+		bool operator() (const LocalEdgeT& left, const LocalEdgeT& right) {
+			return left.second > right.second;
 		}
 	};
 	std::vector<LocalEdgeT> queue;
@@ -100,9 +98,10 @@ bool A_star(const DistanceGraph& g, GraphVisualizer& v, VertexT start, VertexT z
 				queue.push_back(LocalEdgeT (n.first, estimatedTotal));
 			}
 		}
+		std::make_heap(queue.begin(), queue.end(), compare());
 	} while (queue.size() != 0);
 
-
+	// delete!!
 	makePath(predecessors, weg, start, ziel, numVertices);
     return false; // Kein Weg gefunden.
 }
@@ -117,21 +116,46 @@ int main()
     // Lade die zugehoerige Textdatei in einen Graphen
     // PruefeHeuristik
     
-	//std::ifstream in;
+	std::ifstream in;
 	GraphVisualizer * visualizer;
 	std::list<VertexT> weg;
 
-	/*if (example == 1) {
-		in.open("daten/Graph1.dat");*/
+	if ((example == 1) || (example == 2)) {
+		(example == 1) ? in.open("daten/Graph1.dat") : in.open("daten/Graph2.dat");
+		CoordinateGraph graph;
+		in >> graph;
+		in.close();
 
-    std::ifstream in ("daten/Graph1.dat");
-    CoordinateGraph graph;
-    in >> graph;
-    in.close();
 
-	bool pathFound = A_star(graph, *visualizer, 2, 3, weg);
+		// A*
+		for (std::size_t i = 0; i < graph.numVertices(); i++) {
+			for (std::size_t j = 0; j < graph.numVertices(); j++) {
+				bool pathFound = A_star(graph, *visualizer, i, j, weg);
+				if (pathFound) {
+					PruefeWeg(example, weg);
+				}
+			}
+		}
+	} else if ((example == 3) || (example == 4)) {
+		SimpleDistanceGraph graph (1500);
+		if (example == 3) {
+			in.open("daten/Graph3.dat");
+		} else {
+			in.open("daten/Graph4.dat");
+			graph.setMaxEdge(120);
+		}
+		in >> graph;
+		in.close();
 
-	PruefeWeg(1, weg);
+
+		// A*
+		for (std::size_t i = 0; i < graph.numVertices(); i++) {
+			for (std::size_t j = 0; j < graph.numVertices(); j++) {
+				A_star(graph, *visualizer, i, j, weg);
+				PruefeWeg(example, weg);
+			}
+		}
+	}
     
     return 0;
 }

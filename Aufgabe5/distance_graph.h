@@ -144,6 +144,10 @@ class SimpleDistanceGraph : public DistanceGraph {
         vertices.resize(num_verts, dummy);
     };
 
+	void setMaxEdge(double edge_max) {
+		(*this).edge_max = edge_max;
+	}
+
     void addEdge(VertexT from, VertexT to, CostT cost) {//Copied
         LocalEdgeT edge;
         edge.first = to;

@@ -222,6 +222,7 @@ class MazeGraph : public DistanceGraph {
     bool ** mazeField;
     int width;
 
+  public:
     typedef std::pair<std::size_t,std::size_t> indexT;
 
   public:
@@ -260,7 +261,7 @@ class MazeGraph : public DistanceGraph {
     };
 
     int indexToVertex(int i, int j) const {
-        if ((i < 0) || (j < 0) || (i > 7) || (j > 7)) {
+        if ((i < 0) || (j < 0) || (i > width-1) || (j > width-1)) {
             return -1;
         }
         return j + i*width;
@@ -287,7 +288,7 @@ class MazeGraph : public DistanceGraph {
 
             if (vertex> -1) {
                 edge.first = vertex;
-                mazeField[index.first][index.second] ? edge.second = 0 : edge.second = 1;
+                mazeField[index.first][index.second] ? edge.second = 1 : edge.second = infty;
                 (*result).push_back(edge);
             }
         }
@@ -302,9 +303,9 @@ class MazeGraph : public DistanceGraph {
             indexT fromI = vertexToIndex(from);
             indexT toI = vertexToIndex(to);
             if (mazeField[fromI.first][fromI.second] && mazeField[toI.first][toI.second]) {
-                return 0;
-            } else {
                 return 1;
+            } else {
+                return infty;
             }
         }
     };
@@ -316,9 +317,9 @@ class MazeGraph : public DistanceGraph {
                 indexT fromI = vertexToIndex(from);
                 indexT toI = vertexToIndex(to);
                 if (mazeField[fromI.first][fromI.second] && mazeField[toI.first][toI.second]) {
-                    return 0;
-                } else {
                     return 1;
+                } else {
+                    return infty;
                 }
             }
         }
@@ -344,6 +345,24 @@ std::istream& operator>> (std::istream& in, MazeGraph& graph) {
     }
 
     return in;
+}
+
+void uebersetzeLabyrinth(std::vector<CellType>& input, MazeGraph& graph, int breite, VertexT& start, VertexT& ziel) {
+	graph.resize(breite);
+	for (int i = 0; i < breite*breite; i++) {
+		MazeGraph::indexT index = graph.vertexToIndex(i);
+		if (input[i] == CellType::Wall) {
+			graph.setPassage(index.first, index.second, false);
+		} else if (input[i] == CellType::Start) {
+			graph.setPassage(index.first, index.second, true);
+			start = i;
+		} else if (input[i] == CellType::Destination) {
+			graph.setPassage(index.first, index.second, true);
+			ziel = i;
+		} else {
+			graph.setPassage(index.first, index.second, true);
+		}
+	}
 }
 
 #endif

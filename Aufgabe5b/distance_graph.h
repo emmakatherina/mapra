@@ -123,6 +123,8 @@ class SimpleDistanceGraph : public DistanceGraph {
   private:
     std::vector<NeighborT> vertices;
     CostT edge_max;
+    double * northSouth;
+    double * eastWest;
 
     //typedef std::size_t                 VertexT;
     //typedef std::pair<VertexT,VertexT>  EdgeT;
@@ -153,6 +155,11 @@ class SimpleDistanceGraph : public DistanceGraph {
         edge.first = to;
         edge.second = cost;
         vertices[from].push_back(edge);
+    }
+
+    void addCoordinates(VertexT v, double ns, double ew) {
+        northSouth[v] = ns;
+        eastWest[v] = ew;
     }
 
     const NeighborT& getNeighbors(VertexT v) const override {
@@ -208,6 +215,11 @@ std::istream& operator>> (std::istream& in, SimpleDistanceGraph& graph) {
         in >> from >> to >> cost;
         graph.addEdge(from, to, cost);
 
+    }
+    for (int i = 0; i < num_verts; i++) {
+        double ns, ew;
+        in >> ns >> ew;
+        graph.addCoordinates(i, ns, ew);
     }
 
     return in;

@@ -1,15 +1,15 @@
-CXXFLAGS = -Wall -pedantic
-LIBS  = -lGL -lpthread -lX11
+CXXFLAGS = -Wall -pedantic -std=c++11 
 
-all: loesung
+run: loesung
+	./loesung
 
-loesung.o: loesung.cpp unit.h
+loesung.o: loesung.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-loesung: loesung.o unit.o IGL.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+loesung: loesung.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean:
 	rm -f loesung loesung.o
 
-.PHONY: clean
+.PHONY: clean run

@@ -2,10 +2,38 @@
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <map>
 
 using std::cout, std::endl;
 
 typedef double (*function)(double);
+
+class FunctionWrapper {
+    private:
+        function f;
+        std::map<double, double> map;
+
+    public:
+        FunctionWrapper(function f) {
+            this->f = f;
+        }
+
+        double operator() (double x) {
+            std::map<double, double>::iterator it;
+            it = map.find(x);
+            if (it != map.end()) {
+                return it->second;
+            } else {
+                double y = f(x);
+                map.insert( std::pair<double, double>(x,y) );
+                return y;
+            }
+        }
+
+        int calculatedValues() {
+            return map.size();
+        }
+};
 
 double f1(double x) {
     return pow(exp(1.),(-x*x));
@@ -23,24 +51,27 @@ double f5(double x) {
     return 1./(1 + x*x);
 }
 
-double mittelpunktsregel(function f, double a, double b) {
+double mittelpunktsregel(FunctionWrapper& f, double a, double b) {
     return (b-a)*f((a+b)/2);
 }
 
-double trapezregel(function f, double a, double b) {
+double trapezregel(FunctionWrapper& f, double a, double b) {
     return (b-a)*(0.5*f(a) + 0.5*f(b));
 }
 
-double simpsonregel(function f, double a, double b) {
+double simpsonregel(FunctionWrapper& f, double a, double b) {
     return (b-a)*((1./6)*f(a) + (2./3)*f((a+b)/2) + (1./6)*f(b));
 }
 
-double integrate(function f, double a, double b, double epsilon) {
+double integrate(FunctionWrapper& f, double a, double b, double epsilon, int currentDepth, int & depth) {
     cout << mittelpunktsregel(f, a, b) << " - " << trapezregel(f, a, b) << " = " <<
         mittelpunktsregel(f, a, b) - trapezregel(f, a, b) << endl;
     if (abs(mittelpunktsregel(f, a, b) - trapezregel(f, a, b)) > epsilon) {
-        return integrate(f, a, (a+b)/2, epsilon/2) + integrate(f, (a+b)/2, b, epsilon/2);
+        currentDepth++;
+        return integrate(f, a, (a+b)/2, epsilon/2, currentDepth, depth) + integrate(f, (a+b)/2, b, epsilon/2, currentDepth, depth);
     } else {
+        if (depth < currentDepth)
+            depth = currentDepth;
         return simpsonregel(f, a, b);
     }
 }
@@ -51,10 +82,14 @@ int main() {
     std::cin >> Bsp;
 
     double a = 0.01, b = 10., epsilon = 1e-10;
+    int depth = 0;
     //Start(Bsp, a, b, epsilon);
 
-    double integral = integrate(f2, a, b, epsilon);
-    cout << "Integral: " << integral << endl;
+    FunctionWrapper wrapperf = FunctionWrapper(f1);
+    double integral = integrate(wrapperf, a, b, epsilon, 0, depth);
+    cout << "Integral: " << integral << endl << endl;
+
+    cout << "Bei einer äquidistanten Verteilung müssen " << pow(2, depth) << " Funktionswerte übergeben werden, wohingegen bei einer adaptiven Zerlegung nur " << wrapperf.calculatedValues() << " Funktionswerte nötig sind." << endl;
 
     //Ergebnis(integral);
 	return 0;
